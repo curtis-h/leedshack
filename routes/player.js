@@ -33,6 +33,14 @@ module.exports = function(db) {
         });
     });
     
+    router.get('/win', function(req, res) {
+        console.log('==============');
+        console.log('BOSS DEAD');
+        console.log('==============');
+        map.create();
+        res.json({'success':true});
+    });
+    
     /*******
      * WEBFACE routes
      * not done restful cos its a hack
@@ -44,10 +52,11 @@ module.exports = function(db) {
     
     router.route('/items/:id')
         .get(function(req, res) {
-            db.player.findOne({'name' : req.params.id}, 'modifiers', function(err, player) {
+            db.player.findOne({'name' : req.params.id}, 'modifiers level', function(err, player) {
                 var data = {};
                 if(!(err || typeof(player) == 'undefined' || player == null)) {
-                    data = player.modifiers;
+                    data.level     = player.level;
+                    data.modifiers = player.modifiers;
                 }
                 res.json(data);
             });
@@ -122,6 +131,7 @@ module.exports = function(db) {
                         // check for dead player, reset to starting room of current map
                         if(obj.status == 'dead') {
                             obj.status = true;
+                            obj.deader = true;
                             player.level = 1;
                             player.x     = GLOBAL.map.starting.x;
                             player.y     = GLOBAL.map.starting.y;
@@ -172,7 +182,17 @@ module.exports = function(db) {
                         
                         // add some extra vars to returned object for display
                         obj.steps = player.steps;
-                        obj.level = player.level;
+                        obj.level = parseInt(player.level);
+                        
+                        if(player.modifiers.length) {
+                            for(m in player.modifiers) {
+                                // skip all the extra mongoose properties
+                                if(player.modifiers.hasOwnProperty(m) && !isNaN(m)) {
+                                    obj.level += parseInt(player.modifiers[m].modifier);
+                                }
+                            }
+                        }
+                        
                         if(newGameFlag) {
                             obj.string = 'The game has ended, you have awoken in a new dungeon';
                         }

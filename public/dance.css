@@ -353,10 +353,11 @@
     z-index:1; top:-6px;
 }
 #head {
-    background-image: url('http://placekitty.artisan.io/50/50');
+    background-image: url('http://placekitty.artisan.io/600/800');
+    background-size: cover;
     width:58px;
-    height:52px;
-    top:-63px; left:9px;    
+    height:80px;
+    top:-84px; left:0px;
     z-index:5;
 }
 #h2 {
@@ -389,20 +390,20 @@
 #h4 {
     height:10px;
     width:12px;
-    bottom:56px;
     border:1px solid #000;
     background:#C4E0EE;
     z-index:-1;
     border-radius:100%;
-    left:13px;
+    left:22px;
+    top:0px;
 }
 #h5 {
-    bottom:64px;
     background:#76A3C4;
     border:1px solid #000;
     width:2px;
     height:20px;
-    left:18px;
+    left:26px;
+    top: -19px;
     z-index:-2;
     -webkit-animation:h5 4s ease-in-out infinite;
     -moz-animation:h5 4s ease-in-out infinite;

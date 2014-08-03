@@ -21,6 +21,9 @@ exports.create = function() {
         .on('end', function() {
             var body = Buffer.concat(bodyChunks);
             console.log('Map Creation: ' + body);
+            if(String.fromCharCode(body[0]) == '<') {
+                return false;
+            }
             var obj = JSON.parse(body);
             GLOBAL.map = obj;
         })
@@ -50,9 +53,11 @@ exports.call = function(path, callback) {
         })
         .on('end', function() {
             var body = Buffer.concat(bodyChunks);
-            console.log("Map Call: "+ body);
-            var obj  = JSON.parse(body);
+            if(String.fromCharCode(body[0]) == '<') {
+                return false;
+            }
             
+            var obj  = JSON.parse(body);
             callback(obj);
         })
     });

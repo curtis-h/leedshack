@@ -5,15 +5,19 @@ function getItemList() {
         var list = $("#inventory");
         list.find("p").not(".header").remove();
         
-        if(res && res.length) {
-            for(p in res) {
-                if(res.hasOwnProperty(p)) {
-                    var bonus = parseInt(res[p].modifier);
+        var level = parseInt(res.level) || 1;
+        if(res.modifiers && res.modifiers.length) {
+            for(p in res.modifiers) {
+                if(res.modifiers.hasOwnProperty(p)) {
+                    var bonus = parseInt(res.modifiers[p].modifier);
                     var text  = (bonus >= 0) ? '+'+bonus : bonus;
-                    list.append("<p>"+text+" - "+res[p].name+"</p>");
+                    list.append("<p>"+text+" - "+res.modifiers[p].name+"</p>");
+                    level += bonus;
                 }
             }
         }
+        
+        $("#levelDisplay").text(level || '1');
     });
 }
 
@@ -24,7 +28,7 @@ function handleButtonClick() {
     
     $.get('/player/'+id+query, function(res) {
         if(res.boss) {
-            window.location = '/bossface?id='+id;
+            window.location = '/bossface/?id='+id;
             return;
         }
         $("#displayer").prepend("<p>"+res.string+"</p>");
@@ -32,6 +36,19 @@ function handleButtonClick() {
         $("#stepCounter").text(res.steps || '0');
         if(data == 'open') {
             getItemList();
+        }
+        if(data == 'fight') {
+            if(typeof(res.deader) != 'undefined' && res.deader == true) {
+                alert('You DIED');
+                
+                if(window.location.pathname.match(/bossface/) != null) {
+                    window.location = '/webface/?id='+id;
+                    return;
+                }
+            }
+            else if(res.status == true) {
+                handleWin();
+            }
         }
     });
 }
@@ -49,10 +66,19 @@ function handleSomething() {
      */
     
     if(text.match(/dance/gi) != null) {
-        $("#bosstext").text("YOU WIN!!");
-        $(".controls button").remove();
-        $("#robotcontainer").show();
+        handleWin();
     }
+}
+
+function handleWin() {
+    $("#bosstext").text("YOU WIN!!");
+    $(".controls button").remove();
+    $("#robotcontainer").show();
+    $.get('/player/win', function(res) {
+        setTimeout(function() {
+            window.location = '/webface/?id='+id;
+        }, 10000);
+    });
 }
 
 function setupHandlers() {
