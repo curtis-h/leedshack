@@ -1,3 +1,8 @@
+@font-face {
+    font-family: bossfont;
+    src: url(/webface/nightmare.ttf);
+}
+
 * { text-align: center; }
 
 hr {
@@ -14,4 +19,17 @@ hr {
 .controls button {
     margin: 0.5em 0;
     padding: 1em 1.5em;
+}
+
+body.nightmare {
+    color: red;
+    background-color: black;
+    font-family: bossfont;
+    font-size: 5em;
+}
+
+.bossface .btn {
+    font-size: 0.7em;
+    margin: 0;
+    padding: 7px 12px;
 }

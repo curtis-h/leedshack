@@ -170,6 +170,8 @@ module.exports = function(db) {
                         obj.steps = player.steps;
                         obj.level = player.level;
                         
+                        obj.boss = 1;
+                        
                         res.json(obj);
                     });
                 });

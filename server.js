@@ -9,6 +9,9 @@ function init(db) {
     app.use(parser.json());
     app.use('/player', routesPlayer);
     app.use('/webface', express.static(__dirname+'/public'));
+    app.use('/bossface', function(req, res) {
+        res.sendfile(__dirname+'/public/bossface.html');
+    });
     // TODO define other routes here
     app.listen('80');
     console.log('Server running on port 80');
