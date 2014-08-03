@@ -68,7 +68,7 @@ module.exports = function(db) {
                 
             }
             else {
-                db.player.findOne({'name' : req.params.id}, '_id name identifier level game_id x y z modifiers', function(err, player) {
+                db.player.findOne({'name' : req.params.id}, '_id name identifier level game_id x y z modifiers steps', function(err, player) {
                     if(err || typeof(player) == 'undefined' || player == null) {
                         console.log('Player dont exist');
                         player = new db.player({
@@ -79,7 +79,8 @@ module.exports = function(db) {
                             x          : GLOBAL.map.starting.x,
                             y          : GLOBAL.map.starting.y,
                             z          : GLOBAL.map.starting.z,
-                            modifiers  : []
+                            modifiers  : [],
+                            steps      : 0
                         });
                     }
                     
@@ -109,6 +110,11 @@ module.exports = function(db) {
                     
                     
                     map.call(getPlayerPath(player, action), function(obj) {
+                        // if they fought they level up, if they died they get reset to lvl 1 below
+                        if(action == 'fight') {
+                            player.level++;
+                        }
+                        
                         // check for dead player, reset to starting room of current map
                         if(obj.status == 'dead') {
                             obj.status = true;
@@ -116,14 +122,13 @@ module.exports = function(db) {
                             player.x     = GLOBAL.map.starting.x;
                             player.y     = GLOBAL.map.starting.y;
                             player.z     = GLOBAL.map.starting.z;
+                            player.steps = 0;
                             player.modifiers = [];
                         }
                         
                         if(obj.status == true) {
-                            // if they fought and won they level up
-                            if(action == 'fight') {
-                                player.level++;
-                            }
+                            // we have moved, record that
+                            player.steps++;
                             
                             // if theres loot they power up
                             if(typeof(obj.loot) == 'object') {
@@ -148,7 +153,8 @@ module.exports = function(db) {
                                     x          : player.x,
                                     y          : player.y,
                                     z          : player.z,
-                                    modifiers  : player.modifiers
+                                    modifiers  : player.modifiers,
+                                    steps      : player.steps
                                 },
                                 {
                                     upsert : true
@@ -159,6 +165,10 @@ module.exports = function(db) {
                                 }
                             );
                         }
+                        
+                        // add some extra vars to returned object for display
+                        obj.steps = player.steps;
+                        obj.level = player.level;
                         
                         res.json(obj);
                     });
@@ -172,13 +182,5 @@ module.exports = function(db) {
             res.json({});
         });
     
-    /*
-     * TODO ?
-     * .put() - to update data
-     *
-     * .delete() - to remove data
-     */
-    
-
     return router;
 };

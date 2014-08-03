@@ -24,6 +24,8 @@ function handleButtonClick() {
     
     $.get('/player/'+id+query, function(res) {
         $("#displayer").prepend("<p>"+res.string+"</p>");
+        $("#levelDisplay").text(res.level || '1');
+        $("#stepCounter").text(res.steps || '0');
         if(data == 'open') {
             getItemList();
         }
