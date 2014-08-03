@@ -127,7 +127,7 @@ module.exports = function(db) {
                         if(action == 'fight') {
                             player.level++;
                         }
-                        
+                        console.log('STATUS: '+obj.status);
                         // check for dead player, reset to starting room of current map
                         if(obj.status == 'dead') {
                             obj.status = true;

@@ -46,7 +46,7 @@ function handleButtonClick() {
                     return;
                 }
             }
-            else if(res.status == true) {
+            else if(res.status == true && (window.location.pathname.match(/bossface/) != null)) {
                 handleWin();
             }
         }
@@ -87,8 +87,9 @@ function setupHandlers() {
 }
 
 function init() {
-    if(window.location.pathname.match(/bossface/) != null) {
-        id = window.location.search.split("=")[1];
+    var testid = window.location.search.split("=")[1];
+    if(testid && testid.length > 0) {
+        id = testid;
         getItemList();
     }
     else {

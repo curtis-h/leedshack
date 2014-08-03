@@ -22,9 +22,11 @@ exports.create = function() {
             var body = Buffer.concat(bodyChunks);
             console.log('Map Creation: ' + body);
             if(String.fromCharCode(body[0]) == '<') {
+                console.log('WE GOT AN ERROR');
                 return false;
             }
             var obj = JSON.parse(body);
+            console.log('CALLBACK');
             GLOBAL.map = obj;
         })
     });
@@ -53,11 +55,22 @@ exports.call = function(path, callback) {
         })
         .on('end', function() {
             var body = Buffer.concat(bodyChunks);
+            var obj = {};
             if(String.fromCharCode(body[0]) == '<') {
-                return false;
+                console.log('WE GOT AN ERROR');
+                
+                obj = {
+                    "status":true,
+                    "string":"You fashion a weapon with what is around you, and slay the beast.",
+                    "coord":"7x1"
+                }
+;
             }
+            else {
+                obj  = JSON.parse(body);
+            }
+            console.log('CALLBACK');
             
-            var obj  = JSON.parse(body);
             callback(obj);
         })
     });
