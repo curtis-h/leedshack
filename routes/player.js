@@ -26,9 +26,11 @@ module.exports = function(db) {
         next();
     });
     
-    // Get all players
-    router.get('/', function(req, res) {
-        
+    // Get all players xy coords
+    router.get('/xy', function(req, res) {
+        db.player.find({'game_id' : GLOBAL.map.map_id}, 'x y', function (err, players) {
+            res.json(players);
+        });
     });
     
     /*******
@@ -84,7 +86,9 @@ module.exports = function(db) {
                         });
                     }
                     
+                    var newGameFlag = false;
                     if(player.game_id != GLOBAL.map.map_id) {
+                        newGameFlag = true;
                         player.x = GLOBAL.map.starting.x;
                         player.y = GLOBAL.map.starting.y;
                         player.z = GLOBAL.map.starting.z;
@@ -169,8 +173,9 @@ module.exports = function(db) {
                         // add some extra vars to returned object for display
                         obj.steps = player.steps;
                         obj.level = player.level;
-                        
-                        obj.boss = 1;
+                        if(newGameFlag) {
+                            obj.string = 'The game has ended, you have awoken in a new dungeon';
+                        }
                         
                         res.json(obj);
                     });
