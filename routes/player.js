@@ -1,9 +1,19 @@
 function getPlayerPath(player, action) {
+    var level = parseInt(player.level);
+    if(player.modifiers.length) {
+        for(m in player.modifiers) {
+            // skip all the extra mongoose properties
+            if(player.modifiers.hasOwnProperty(m) && !isNaN(m)) {
+                level += parseInt(player.modifiers[m].modifier);
+            }
+        }
+    }
+    
     return action+'/'+
            GLOBAL.map.map_id+'/'+
            player.x+','+player.y+','+player.z+'/'+
-           player.name+'/'
-           player.level;
+           player.name+'/'+
+           level;
 }
 
 module.exports = function(db) {
@@ -21,6 +31,12 @@ module.exports = function(db) {
         
     });
     
+    router.get('/random', function(req, res) {
+        res.json({
+            id: new db.objectID()
+        })
+    });
+    
     // specific player getters
     router.route('/:id')
         // retrieve player state
@@ -34,7 +50,7 @@ module.exports = function(db) {
                 
             }
             else {
-            db.player.findOne({'name' : req.params.id}, '_id name identifier level game_id x y z', function(err, player) {
+            db.player.findOne({'name' : req.params.id}, '_id name identifier level game_id x y z modifiers', function(err, player) {
                 if(err || typeof(player) == 'undefined' || player == null) {
                     console.log('Player dont exist');
                     player = new db.player({
@@ -45,6 +61,7 @@ module.exports = function(db) {
                         x          : GLOBAL.map.starting.x,
                         y          : GLOBAL.map.starting.y,
                         z          : GLOBAL.map.starting.z,
+                        modifiers  : []
                     });
                 }
                 
@@ -64,21 +81,36 @@ module.exports = function(db) {
                     case 'east':  player.x++; break;
                     case 'west':  player.x--; break
                     case 'fight': action = 'fight'; break;
-                    case 'open':  action = 'open';  break;
+                    case 'open':  action = 'loot';  break;
+                    case 'start': 
+                    case 'create': 
+                    case 'join':  action = 'check'; break;
                     case 'help':  return; break;
                     default: return; break;
                 }
+                
                 
                 map.call(getPlayerPath(player, action), function(obj) {
                     // check for dead player, reset to starting room of current map
                     if(obj.status == 'dead') {
                         obj.status = true;
-                        player.x = GLOBAL.map.starting.x;
-                        player.y = GLOBAL.map.starting.y;
-                        player.z = GLOBAL.map.starting.z;
+                        player.level = 1;
+                        player.x     = GLOBAL.map.starting.x;
+                        player.y     = GLOBAL.map.starting.y;
+                        player.z     = GLOBAL.map.starting.z;
+                        player.modifiers = [];
                     }
                     
                     if(obj.status == true) {
+                        // if they fought and won they level up
+                        if(action == 'fight') {
+                            player.level++;
+                        }
+                        
+                        // if theres loot they power up
+                        if(typeof(obj.loot) == 'object') {
+                            player.modifiers.push(obj.loot);
+                        }
                         
                         if(obj.complete == true) {
                             console.log('==============');
@@ -97,7 +129,8 @@ module.exports = function(db) {
                                 game_id    : GLOBAL.map.map_id,
                                 x          : player.x,
                                 y          : player.y,
-                                z          : player.z
+                                z          : player.z,
+                                modifiers  : player.modifiers
                             },
                             {
                                 upsert : true

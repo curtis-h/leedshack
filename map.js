@@ -33,11 +33,12 @@ exports.create = function() {
 };
 
 exports.call = function(path, callback) {
-    console.log("CALLING: "+path);
+    var fullPath = '/player/' + path;
+    console.log("CALLING: "+fullPath);
     
     var request = http.get({
         host : options.host,
-        path : '/player/' + path
+        path : fullPath
     }, function(res) {
         //console.log('MAP STATUS: ' + res.statusCode);
         // Buffer the body entirely for processing as a whole.
@@ -49,7 +50,7 @@ exports.call = function(path, callback) {
         })
         .on('end', function() {
             var body = Buffer.concat(bodyChunks);
-            console.log("Map Check: "+ body);
+            console.log("Map Call: "+ body);
             var obj  = JSON.parse(body);
             
             callback(obj);
@@ -58,6 +59,7 @@ exports.call = function(path, callback) {
     
     request.on('error', function(e) {
         console.log('ERROR: ' + e.message);
+        console.log('ERROR PATH: '+fullPath);
         return false;
     });
 };
