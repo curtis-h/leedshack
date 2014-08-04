@@ -6,3 +6,5 @@ This controller acts as the connector and controller for all the seperate module
 ### Install
 * Clone to directory
 * npm install
+
+Requires a running mongodb
