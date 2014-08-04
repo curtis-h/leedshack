@@ -1,6 +1,6 @@
 var http    = require('http');
 var options = {
-    host: '146.185.146.129'
+    host: 'mud-map-generator.herokuapp.com'
 };
 
 exports.create = function() {
@@ -39,13 +39,14 @@ exports.create = function() {
 
 exports.call = function(path, callback) {
     var fullPath = '/player/' + path;
-    console.log("CALLING: "+fullPath);
+    console.log("MAP CALLING: "+fullPath);
     
     var request = http.get({
         host : options.host,
         path : fullPath
     }, function(res) {
-        //console.log('MAP STATUS: ' + res.statusCode);
+        console.log('MAP RESPONSE: ');
+	console.log(res);
         // Buffer the body entirely for processing as a whole.
         var bodyChunks = [];
         
@@ -61,7 +62,7 @@ exports.call = function(path, callback) {
                 
                 obj = {
                     "status":true,
-                    "string":"You fashion a weapon with what is around you, and slay the beast.",
+                    "string":"You fight the darkness",
                     "coord":"7x1"
                 }
 ;

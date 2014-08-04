@@ -8,4 +8,4 @@ conn.once("open", function() {
 });
 
 exports.objectID = mongoose.Types.ObjectId;
-exports.player = require('./models/player')(mongoose);
+exports.player   = require('./models/player')(mongoose);
